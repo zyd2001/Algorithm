@@ -10,6 +10,7 @@ public:
     int Vertex;
     vector<vector<int>> adj;
 
+    Graph(){}
     Graph(int V)
     {
         Vertex = V;
@@ -37,10 +38,38 @@ public:
         }
     }
 
-    void addEdge(int v, int w)
+    virtual void addEdge(int v, int w)
     {
         adj[v].push_back(w);
         adj[w].push_back(v);
+        Edge++;
+    }
+};
+
+class DiGraph : public Graph
+{
+public:
+    DiGraph(int v) : Graph(v) {}
+    DiGraph(istream &in)
+    {
+        int i, v, w, e;
+        in >> Vertex;
+        in >> e;
+        Edge = 0;
+        for (int v = 0; v < Vertex; v++)
+        {
+            adj.push_back(vector<int>());
+        }
+        for (i = 0; i < e; i++)
+        {
+            in >> v >> w;
+            addEdge(v, w);
+        }
+    }
+
+    void addEdge(int v, int w) override
+    {
+        adj[v].push_back(w);
         Edge++;
     }
 };
@@ -104,17 +133,37 @@ public:
     }
 };
 
+class DFS
+{
+public:
+    vector<bool> marked;
+    int count;
+
+    DFS(Graph g, int v)
+    {
+        marked = vector<bool>(g.Vertex);
+        dfs(g, v);
+    }
+
+    void dfs(Graph g, int v)
+    {
+        marked[v] = true;
+        count++;
+        for (auto &w : g.adj[v])
+            if (!marked[w])
+                dfs(g, w);
+    }
+};
+
 int main()
 {
-    ifstream input("largeG.txt");
+    ifstream input("tinyDG.txt");
     if (!input.is_open())
         return 0;
-    Graph g(input);
-    UF u(g);
-    // int v, w;
-    // while (1)
-    // {
-    //     cin >> v >> w;
-    //     cout << boolalpha << u.connected(v, w) << endl;
-    // }
+    DiGraph g(input);
+    DFS dfs(g, 0);
+    for (int i = 0; i < dfs.marked.size(); i++)
+    {
+        cout << boolalpha << i << " " << dfs.marked[i] << endl;
+    }
 }
